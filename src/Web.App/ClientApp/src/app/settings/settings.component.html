@@ -1,0 +1,22 @@
+<h1 id="tableLabel">Settings</h1>
+
+<p *ngIf="!isLoaded"><em>Loading...</em></p>
+
+<form [formGroup]="settingsForm">
+  <div>
+    <label for="backgroundColor">Background Color</label>
+    <input id="backgroundColor" formControlName="backgroundColor" type="text">
+  </div>
+  <div>
+    <label for="fontColor">Font Color</label>
+    <input id="fontColor" formControlName="fontColor" type="text">
+  </div>
+  <div>
+    <label for="fontSize">Font Size</label>
+    <input id="fontSize" formControlName="fontSize" type="text">
+  </div>
+  <div>
+    <label for="message">Message</label>
+    <input id="message" formControlName="message" type="text">
+  </div>
+</form>

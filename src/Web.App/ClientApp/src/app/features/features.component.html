@@ -1,0 +1,14 @@
+<h1 id="tableLabel">Features</h1>
+
+<p *ngIf="!isLoaded"><em>Loading...</em></p>
+
+<form [formGroup]="featuresForm">
+  <div>
+    <input id="dynamicPoll" formControlName="dynamicPoll" type="checkbox">
+    <label for="dynamicPoll">Dynamic Poll</label>
+  </div>
+  <div>
+    <input id="dynamicPush" formControlName="dynamicPush" type="checkbox">
+    <label for="dynamicPush">Dynamic Push</label>
+  </div>
+</form>

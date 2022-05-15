@@ -1,0 +1,7 @@
+.scroll-area {
+    height: 100vh;
+}
+
+.scroll-area:not(:first-of-type) {
+  padding-top: calc(2.8rem + 3vw);
+}

@@ -1,0 +1,3 @@
+GET https://localhost:44454/settings
+####
+GET https://localhost:44454/weatherforecast

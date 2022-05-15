@@ -1,0 +1,7 @@
+div {
+    padding-top: 1rem;
+}
+
+div > input {
+    margin-right: 1rem;
+}
