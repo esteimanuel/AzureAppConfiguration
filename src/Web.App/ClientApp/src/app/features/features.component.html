@@ -3,12 +3,14 @@
 <p *ngIf="!isLoaded"><em>Loading...</em></p>
 
 <form [formGroup]="featuresForm">
-  <div>
-    <input id="dynamicPoll" formControlName="dynamicPoll" type="checkbox">
-    <label for="dynamicPoll">Dynamic Poll</label>
-  </div>
-  <div>
-    <input id="dynamicPush" formControlName="dynamicPush" type="checkbox">
-    <label for="dynamicPush">Dynamic Push</label>
-  </div>
+  <ng-container formArrayName="features">
+    <ng-container *ngFor="let feature of features.controls; let i = index">
+      <div [formGroupName]="i">
+        
+        <input [title]="feature.value.name" [formControlName]="feature.value.name" type="checkbox" [checked]="feature.value.isEnabled">
+        <label [for]="feature.value.name">{{feature.value.name}}</label>
+
+      </div>
+    </ng-container>
+  </ng-container>
 </form>

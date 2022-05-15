@@ -18,11 +18,15 @@ public class FeaturesController : ControllerBase
     }
 
     [HttpGet]
-    public async IAsyncEnumerable<string> Get()
+    public async IAsyncEnumerable<Feature> Get()
     {
         await foreach(var featureName in this.featureManager.GetFeatureNamesAsync()) 
         {
-            yield return featureName;
+            yield return new Feature 
+            { 
+                Name = featureName, 
+                IsEnabled = await this.featureManager.IsEnabledAsync(featureName) 
+            };
         }
     }
 }

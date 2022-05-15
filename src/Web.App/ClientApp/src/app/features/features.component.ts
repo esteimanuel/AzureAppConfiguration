@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { FormBuilder } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-features',
@@ -9,24 +9,26 @@ import { FormBuilder } from '@angular/forms';
 })
 export class FeaturesComponent {
   isLoaded = false;
-  public featuresForm = this.formBuilder.group({
-    backgroundColor: '',
-    fontColor: '',
-    fontSize: 0,
-    message: ''
+  featuresForm = this.formBuilder.group({
+    features: this.formBuilder.array([])
   });
 
   constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string, private formBuilder: FormBuilder) {
-    http.get<Features>(baseUrl + 'api/features').subscribe(result => {
-      this.featuresForm = this.formBuilder.group(result);
+    http.get<Feature[]>(baseUrl + 'api/features').subscribe(result => {
+      
+      this.featuresForm = this.formBuilder.group({
+        features: this.formBuilder.array(result.map(x => this.formBuilder.control(x)))
+      });
       this.isLoaded = true;
     }, error => console.error(error));
   }
+
+  get features() {
+    return this.featuresForm.controls['features'] as FormArray
+  }
 }
 
-interface Features {
-  backgroundColor: string;
-  fontColor: string;
-  fontSize: number;
-  message: string;
+interface Feature {
+  name: string;
+  isEnabled: boolean;
 }
