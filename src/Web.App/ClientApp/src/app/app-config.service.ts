@@ -30,9 +30,17 @@ export class AppConfigService {
       .then(() => console.log('Disconnected'));
   }
 
+  private wait(milliseconds: number) {
+    return new Promise((r) => setTimeout(r, milliseconds));
+  }
+
   onConfigChanged() {
     const subject = new Subject();
-    this.hubConnection.on('configChanges', (msg:any) => subject.next(msg));
+    this.hubConnection.on('configChanges', async (msg: any) => {
+      console.log('configChanged');
+      await this.wait(60000);
+      subject.next(msg);
+    });
     return subject.asObservable();
   }
 }

@@ -5,13 +5,13 @@ namespace Web.App.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-// [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public class FeaturesController : ControllerBase
 {
     private readonly ILogger<FeaturesController> _logger;
-    private readonly IFeatureManagerSnapshot featureManager;
+    private readonly IFeatureManager featureManager;
 
-    public FeaturesController(ILogger<FeaturesController> logger, IFeatureManagerSnapshot featureManager)
+    public FeaturesController(ILogger<FeaturesController> logger, IFeatureManager featureManager)
     {
         _logger = logger;
         this.featureManager = featureManager;

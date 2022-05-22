@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormArray, FormBuilder, FormControl } from '@angular/forms';
 import { AppConfigService } from '../app-config.service';
@@ -8,7 +8,7 @@ import { AppConfigService } from '../app-config.service';
   templateUrl: './features.component.html',
   styleUrls: ['./features.component.css']
 })
-export class FeaturesComponent implements OnInit {
+export class FeaturesComponent implements OnInit, OnDestroy {
   isLoaded = false;
   featuresForm = this.formBuilder.group({
     features: this.formBuilder.array([])
@@ -24,14 +24,22 @@ export class FeaturesComponent implements OnInit {
       .onConfigChanged()
       .subscribe(() => this.getFeatures());
   }
+  
+  ngOnDestroy(): void {
+    this.appConfig.closeConnection();
+  }
+
+  updateValues(features: Feature[]) {
+    this.featuresForm = this.formBuilder.group({
+      features: this.formBuilder.array(features)
+    });
+  }
 
   getFeatures() {
     this.isLoaded = false;
     return this.http.get<Feature[]>(this.baseUrl + 'api/features').subscribe(result => {
       console.log('getFeatures', result)
-      this.featuresForm = this.formBuilder.group({
-        features: this.formBuilder.array(result.map(x => this.formBuilder.group(x)))
-      });
+      this.updateValues(result);
       this.isLoaded = true;
     }, error => console.error(error));
   }
