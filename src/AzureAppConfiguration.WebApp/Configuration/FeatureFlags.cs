@@ -1,4 +1,4 @@
-namespace Web.App.Configuration;
+namespace AzureAppConfiguration.WebApp.Configuration;
 
 public enum FeatureFlags
 {

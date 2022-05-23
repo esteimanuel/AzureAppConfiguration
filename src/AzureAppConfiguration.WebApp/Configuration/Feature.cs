@@ -1,4 +1,4 @@
-namespace Web.App;
+namespace AzureAppConfiguration.WebApp;
 
 public class Feature
 {

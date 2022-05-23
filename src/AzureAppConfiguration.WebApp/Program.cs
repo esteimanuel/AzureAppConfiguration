@@ -1,7 +1,9 @@
 using Azure.Messaging.EventGrid;
+using AzureAppConfiguration.WebApp;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration.Extensions;
+using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 //    .ConfigureRefresh(refresh =>
 //    {
 //        refresh
-//        .Register("Web.App:Settings:Sentinel", refreshAll: true)
+//        .Register("Settings:Sentinel", refreshAll: true)
 //        .SetCacheExpiration(TimeSpan.FromMinutes(5));
 //    })
 //    .UseFeatureFlags();
@@ -32,18 +34,19 @@ builder.Configuration
     .ConfigureRefresh(refresh =>
     {
         refresh
-        .Register("Web.App:Settings:Sentinel", refreshAll: true)
+        .Register("Settings:Sentinel", refreshAll: true)
         .SetCacheExpiration(TimeSpan.FromDays(1)); // Reduce poll frequency
     })
     .UseFeatureFlags();
-    
+
     refresher = options.GetRefresher();
 
 });
 
 RegisterRefreshEventHandler(builder.Configuration, refresher);
 
-static void RegisterRefreshEventHandler(ConfigurationManager configuration, IConfigurationRefresher refresher) {
+static void RegisterRefreshEventHandler(ConfigurationManager configuration, IConfigurationRefresher refresher)
+{
     string serviceBusConnectionString = configuration.GetConnectionString("ServiceBus");
     string serviceBusTopic = "sbt-az-app-config-update-topic";
     string serviceBusSubscription = "sb-este-kn-app-config";
@@ -71,14 +74,12 @@ static void RegisterRefreshEventHandler(ConfigurationManager configuration, ICon
 }
 #endregion
 
-builder.Services.Configure<Web.App.Settings>(builder.Configuration.GetSection("Web.App:Settings"));
+builder.Services.Configure<Settings>(builder.Configuration.GetSection("Settings"));
 builder.Services.AddAzureAppConfiguration();
 builder.Services.AddFeatureManagement();
 
 #region Off topic
 // Add services to the container.
-
-builder.Services.AddControllersWithViews();
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
 
 var app = builder.Build();
@@ -93,17 +94,28 @@ if (!app.Environment.IsDevelopment())
 
 app.UseAzureAppConfiguration();
 
+app.MapGet("api/settings", (IOptionsSnapshot<Settings> settings) => settings.Value);
+
+app.MapGet("api/features", async (IFeatureManager featureManager) =>
+{
+    var features =
+        await featureManager
+        .GetFeatureNamesAsync()
+        .SelectAwait(async featureName => new Feature
+        {
+            Name = featureName,
+            IsEnabled = await featureManager.IsEnabledAsync(featureName)
+        }).ToListAsync();
+    return features;
+
+});
+
 #region Off topic
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseRouting();
-
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
 
 app.MapFallbackToFile("index.html"); ;
 
-app.Run();
 #endregion
+
+app.Run();

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Web.App": {
+    "AzureAppConfiguration.WebApp": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:application": {
@@ -69,10 +69,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "Web.App:build:production"
+              "browserTarget": "AzureAppConfiguration.WebApp:build:production"
             },
             "development": {
-              "browserTarget": "Web.App:build:development",
+              "browserTarget": "AzureAppConfiguration.WebApp:build:development",
               "proxyConfig": "proxy.conf.js"
             }
           },
@@ -81,7 +81,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "Web.App:build"
+            "browserTarget": "AzureAppConfiguration.WebApp:build"
           }
         },
         "test": {
@@ -129,5 +129,5 @@
       }
     }
   },
-  "defaultProject": "Web.App"
+  "defaultProject": "AzureAppConfiguration.WebApp"
 }

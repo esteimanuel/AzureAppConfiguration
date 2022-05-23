@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{959A2C82-4B93-4DBF-A394-E4C28193D6CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.App", "src\Web.App\Web.App.csproj", "{852A63ED-15A3-48C3-9242-0D47B7100A26}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureAppConfiguration.WebApp", "src\AzureAppConfiguration.WebApp\AzureAppConfiguration.WebApp.csproj", "{852A63ED-15A3-48C3-9242-0D47B7100A26}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
