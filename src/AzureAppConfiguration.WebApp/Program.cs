@@ -49,7 +49,7 @@ static void RegisterRefreshEventHandler(ConfigurationManager configuration, ICon
 {
     string serviceBusConnectionString = configuration.GetConnectionString("ServiceBus");
     string serviceBusTopic = "sbt-az-app-config-update-topic";
-    string serviceBusSubscription = "sb-este-kn-app-config";
+    string serviceBusSubscription = "app-config-updated-topic-subscription";
     var serviceBusClient = new SubscriptionClient(serviceBusConnectionString, serviceBusTopic, serviceBusSubscription);
 
     serviceBusClient.RegisterMessageHandler(
@@ -101,10 +101,13 @@ app.MapGet("api/features", async (IFeatureManager featureManager) =>
     var features =
         await featureManager
         .GetFeatureNamesAsync()
-        .SelectAwait(async featureName => new Feature
-        {
-            Name = featureName,
-            IsEnabled = await featureManager.IsEnabledAsync(featureName)
+        .SelectAwait(async featureName => {
+            var feature = new Feature
+            {
+                Name = featureName,
+                IsEnabled = await featureManager.IsEnabledAsync(featureName)
+            };
+            return feature;
         }).ToListAsync();
     return features;
 
