@@ -42,18 +42,18 @@ graph TD
     webapi[Web Api]
     appc[Azure App Config]
     sb[Service Bus]
-    appcu[Azure App Config User]
+    appcu(Azure App Config User)
     azfun[Azure Function]
     sigr[SignalR Service]
     webapp -->|Get features| webapi
     webapp -->|Get settings| webapi
     appcu -->|Change config| appc
     webapi -->|Get config| appc
-    appc -->|Return latest config| webapi
+    appc .->|Return latest config| webapi
     appc -->|Config changed| sb
-    sb -->|Notify subscribers of config change| webapi
+    sb .->|Notify subscribers of config change| webapi
     sb -->|Notify subscribers of config change| azfun
     azfun -->|Add message to hub| sigr
-    sigr -->|Notify listeners| webapp
+    sigr .->|Notify listeners| webapp
     webapp -->|Listen for config changes| sigr
 ```
