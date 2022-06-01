@@ -48,8 +48,8 @@ RegisterRefreshEventHandler(builder.Configuration, refresher);
 static void RegisterRefreshEventHandler(ConfigurationManager configuration, IConfigurationRefresher refresher)
 {
     string serviceBusConnectionString = configuration.GetConnectionString("ServiceBus");
-    string serviceBusTopic = "sbt-az-app-config-update-topic";
-    string serviceBusSubscription = "app-config-updated-topic-subscription";
+    string serviceBusTopic = configuration.GetValue<string>("AzureAppConfig:ServiceBus:Topic");
+    string serviceBusSubscription = configuration.GetValue<string>("AzureAppConfig:ServiceBus:TopicSubscription");
     var serviceBusClient = new SubscriptionClient(serviceBusConnectionString, serviceBusTopic, serviceBusSubscription);
 
     serviceBusClient.RegisterMessageHandler(
