@@ -1,16 +1,14 @@
 # Azure App Configuration
 Consists of Configuration Management and Feature Management and has the following properties:
-- Change history for recovering from mistakes.
 - Security using role based access control
 - Store secrets using Azure Key Vault integration
 - .NET Framework/Core integration
 - Realtime updates without having to restart the app
 - Decoupling of configuration from deployment
 
-
 ## Configuration Management
 - Centralized configuration
-- Realtime updates
+- Change history for recovering from mistakes.
 
 ## Feature Management
 - User targeting
@@ -19,3 +17,39 @@ Consists of Configuration Management and Feature Management and has the followin
 - Test in production
 - Progressive delivery
 - Kill switch
+
+## Architecture
+
+### Dynamic Configuration: Pull model
+``` mermaid
+graph TD
+    webapp[Web App]
+    webapi[Web Api]
+    appc[Azure App Config]
+    appcu[Azure App Config User]
+    webapp -->|Get features| webapi
+    webapp -->|Get settings| webapi
+    webapi -->|Poll config every N time| appc
+    appc -->|Return latest config| webapi
+    appcu -->|Change config| appc
+    appc
+
+```
+
+## Dynamic Configuration: Push model
+``` mermaid
+graph TD
+    webapp[Web App]
+    webapi[Web Api]
+    appc[Azure App Config]
+    sb[Service Bus]
+    appcu[Azure App Config User]
+    webapp -->|Get features| webapi
+    webapp -->|Get settings| webapi
+    webapi -->|Get config| appc
+    appc -->|Return latest config| webapi
+    appc -->|Config changed| sb
+    sb -->|Notify subscribers of config change| webapi
+    appcu -->|Change config| appc
+
+```
