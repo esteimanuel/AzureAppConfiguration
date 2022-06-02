@@ -52,8 +52,6 @@ namespace AzureAppConfiguration.Console.DotnetFramework
 
             await FeatureManagementRequestSimulator(services, configurationRefresher);
 
-            while (System.Console.ReadLine() != "q");
-
             return 0;
         }
 
@@ -76,6 +74,7 @@ namespace AzureAppConfiguration.Console.DotnetFramework
 
                 var maxDelay = TimeSpan.FromSeconds(10); ;
                 refresher.ProcessPushNotification(pushNotification, maxDelay: maxDelay);
+                System.Console.WriteLine($"Event: Azure App Configuration changed");
 
                 return Task.CompletedTask;
             };
@@ -86,7 +85,7 @@ namespace AzureAppConfiguration.Console.DotnetFramework
                 return Task.CompletedTask;
             };
 
-            System.Console.WriteLine("Start listening for config changes");
+            System.Console.WriteLine("App: Start listening for config changes");
             await processor.StartProcessingAsync();
         }
 
@@ -101,10 +100,11 @@ namespace AzureAppConfiguration.Console.DotnetFramework
                         var featureManager = serviceProvider.GetRequiredService<IFeatureManager>();
 
                         var feature = "beta";
-                        System.Console.WriteLine($"Request: feature {feature} ");
+                        System.Console.Write($"Request: feature {feature} -> ");
 
                         var refreshed = await refresher.TryRefreshAsync();
-                        if (refreshed) System.Console.WriteLine($"Request: try refresh config for next request");
+                        if (refreshed) System.Console.Write($"try refresh -> ");
+
                         if (await featureManager.IsEnabledAsync(feature))
                         {
                             System.Console.WriteLine($"Response: feature {feature} enabled");
@@ -114,7 +114,7 @@ namespace AzureAppConfiguration.Console.DotnetFramework
                             System.Console.WriteLine($"Response: feature {feature} disabled");
                         }
                     }
-                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    await Task.Delay(TimeSpan.FromSeconds(5));
                 }
             });
         }
