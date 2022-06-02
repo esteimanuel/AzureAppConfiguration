@@ -46,7 +46,7 @@ namespace AzureAppConfiguration.Console.DotnetFramework
 
             var services = new ServiceCollection();
 
-            await RegisterRefreshEventHandler(configuration);
+            await RegisterRefreshEventHandler(configuration, configurationRefresher);
 
             services.AddSingleton<IConfiguration>(configuration).AddFeatureManagement();
 
@@ -57,7 +57,7 @@ namespace AzureAppConfiguration.Console.DotnetFramework
             return 0;
         }
 
-        static async Task RegisterRefreshEventHandler(IConfiguration configuration)
+        static async Task RegisterRefreshEventHandler(IConfiguration configuration, IConfigurationRefresher refresher)
         {
             string serviceBusConnectionString = configuration.GetConnectionString("ServiceBus");
             string serviceBusTopic = configuration.GetValue<string>("AzureAppConfig:ServiceBus:Topic");
@@ -67,7 +67,7 @@ namespace AzureAppConfiguration.Console.DotnetFramework
 
             var processor = serviceBusClient.CreateProcessor(serviceBusTopic, serviceBusSubscription);
 
-            processor.ProcessMessageAsync += async (args) =>
+            processor.ProcessMessageAsync += (args) =>
             {
                 var message = args.Message;
 
@@ -76,6 +76,8 @@ namespace AzureAppConfiguration.Console.DotnetFramework
 
                 var maxDelay = TimeSpan.FromSeconds(10); ;
                 refresher.ProcessPushNotification(pushNotification, maxDelay: maxDelay);
+
+                return Task.CompletedTask;
             };
 
             processor.ProcessErrorAsync += (exceptionargs) =>
