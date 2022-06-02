@@ -46,18 +46,18 @@ namespace AzureAppConfiguration.Console.DotnetFramework
 
             var services = new ServiceCollection();
 
-            await RegisterRefreshEventHandler(configuration, configurationRefresher);
+            await RegisterRefreshEventHandler(configuration);
 
             services.AddSingleton<IConfiguration>(configuration).AddFeatureManagement();
 
-            await FeatureManagementBackgroundProcess(services);
+            await FeatureManagementRequestSimulator(services, configurationRefresher);
 
             while (System.Console.ReadLine() != "q");
 
             return 0;
         }
 
-        static async Task RegisterRefreshEventHandler(IConfiguration configuration, IConfigurationRefresher refresher)
+        static async Task RegisterRefreshEventHandler(IConfiguration configuration)
         {
             string serviceBusConnectionString = configuration.GetConnectionString("ServiceBus");
             string serviceBusTopic = configuration.GetValue<string>("AzureAppConfig:ServiceBus:Topic");
@@ -70,18 +70,12 @@ namespace AzureAppConfiguration.Console.DotnetFramework
             processor.ProcessMessageAsync += async (args) =>
             {
                 var message = args.Message;
-                
+
                 var eventGridEvent = EventGridEvent.Parse(BinaryData.FromBytes(message.Body));
                 eventGridEvent.TryCreatePushNotification(out PushNotification pushNotification);
-                
+
                 var maxDelay = TimeSpan.FromSeconds(10); ;
                 refresher.ProcessPushNotification(pushNotification, maxDelay: maxDelay);
-                
-                System.Console.WriteLine($"Config updated, wait for max delay of {maxDelay.Seconds} seconds to refresh configuration");
-                await Task.Delay(maxDelay);
-                
-                var refreshed = await refresher.TryRefreshAsync();
-                if (refreshed) System.Console.WriteLine($"Config refreshed");
             };
 
             processor.ProcessErrorAsync += (exceptionargs) =>
@@ -94,7 +88,7 @@ namespace AzureAppConfiguration.Console.DotnetFramework
             await processor.StartProcessingAsync();
         }
 
-        private static async Task FeatureManagementBackgroundProcess(ServiceCollection services)
+        private static async Task FeatureManagementRequestSimulator(ServiceCollection services, IConfigurationRefresher refresher)
         {
             await Task.Run(async () =>
             {
@@ -105,14 +99,17 @@ namespace AzureAppConfiguration.Console.DotnetFramework
                         var featureManager = serviceProvider.GetRequiredService<IFeatureManager>();
 
                         var feature = "beta";
-                        System.Console.Write($"Get feature {feature} from cache, ");
-                        if (await featureManager.IsEnabledAsync("beta"))
+                        System.Console.WriteLine($"Request: feature {feature} ");
+
+                        var refreshed = await refresher.TryRefreshAsync();
+                        if (refreshed) System.Console.WriteLine($"Request: try refresh config for next request");
+                        if (await featureManager.IsEnabledAsync(feature))
                         {
-                            System.Console.WriteLine($"feature {feature} is enabled");
+                            System.Console.WriteLine($"Response: feature {feature} enabled");
                         }
                         else
                         {
-                            System.Console.WriteLine($"feature {feature} is disabled");
+                            System.Console.WriteLine($"Response: feature {feature} disabled");
                         }
                     }
                     await Task.Delay(TimeSpan.FromSeconds(1));
